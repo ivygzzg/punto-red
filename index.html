@@ -648,6 +648,42 @@
         </div>
         </sc-if>
 
+        <!-- Sheet 2: Método de pago -->
+        <sc-if value="{{ paymentSheetOpen }}" hint-placeholder-val="{{ false }}">
+        <div class="sheet-overlay" onClick="{{ closePaymentSheet }}">
+          <div class="sheet" onClick="{{ stop }}">
+            <div class="sheet-handle"></div>
+            <h3 class="sheet-title">Selecciona un método de pago</h3>
+
+            <div class="payment-option" onClick="{{ selTarjeta }}" style="border-color: {{ tarjetaBorder }}">
+              <div class="payment-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7b3fd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+              </div>
+              <span class="payment-label">Tarjeta</span>
+              <div class="payment-radio" style="border-color: {{ tarjetaBorder }}">
+                <sc-if value="{{ tarjetaSel }}" hint-placeholder-val="{{ false }}">
+                  <div class="payment-radio-dot"></div>
+                </sc-if>
+              </div>
+            </div>
+
+            <div class="payment-option" onClick="{{ selEfectivo }}" style="border-color: {{ efectivoBorder }}">
+              <div class="payment-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7b3fd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <span class="payment-label">Pago en efectivo</span>
+              <div class="payment-radio" style="border-color: {{ efectivoBorder }}">
+                <sc-if value="{{ efectivoSel }}" hint-placeholder-val="{{ false }}">
+                  <div class="payment-radio-dot"></div>
+                </sc-if>
+              </div>
+            </div>
+
+            <button class="sheet-confirm-btn" onClick="{{ confirmPayment }}">Continuar</button>
+          </div>
+        </div>
+        </sc-if>
+
       </div>
       </sc-if>
 
@@ -659,7 +695,7 @@
 
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { screen: 'home', cents: 0, sheetOpen: false, method: 'enviar' };
+  state = { screen: 'home', cents: 0, sheetOpen: false, method: 'enviar', paymentSheetOpen: false, paymentMethod: 'tarjeta' };
 
   add(d) {
     this.setState(s => {
@@ -669,7 +705,7 @@ class Component extends DCLogic {
   }
 
   renderVals() {
-    const { screen, cents, sheetOpen, method } = this.state;
+    const { screen, cents, sheetOpen, method, paymentSheetOpen, paymentMethod } = this.state;
     const intPart = Math.floor(cents / 100).toLocaleString('en-US');
     const dec = String(cents % 100).padStart(2, '0');
 
@@ -701,7 +737,19 @@ class Component extends DCLogic {
       enviarBorder: method === 'enviar' ? '#754BF1' : '#ece9f2',
       cuentaBorder: method === 'cuenta' ? '#754BF1' : '#ece9f2',
 
-      confirm: () => this.setState({ sheetOpen: false }),
+      confirm: () => this.setState({ sheetOpen: false, paymentSheetOpen: true }),
+
+      paymentSheetOpen,
+      closePaymentSheet: () => this.setState({ paymentSheetOpen: false }),
+
+      selTarjeta:  () => this.setState({ paymentMethod: 'tarjeta' }),
+      selEfectivo: () => this.setState({ paymentMethod: 'efectivo' }),
+      tarjetaSel:  paymentMethod === 'tarjeta',
+      efectivoSel: paymentMethod === 'efectivo',
+      tarjetaBorder:  paymentMethod === 'tarjeta'  ? '#754BF1' : '#ece9f2',
+      efectivoBorder: paymentMethod === 'efectivo' ? '#754BF1' : '#ece9f2',
+
+      confirmPayment: () => this.setState({ paymentSheetOpen: false }),
     };
   }
 }
